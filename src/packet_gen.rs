@@ -1,8 +1,8 @@
 pub struct PacketProt{
-    command: char,
-    param1: Option<u32>,
-    param2: Option<u32>,
-    param3: Option<u32>,
+    pub command: char,
+    pub param1: Option<u32>,
+    pub param2: Option<u32>,
+    pub param3: Option<u32>,
 }
 
 impl PacketProt{
@@ -18,5 +18,16 @@ impl PacketProt{
 
     pub fn generate(self) -> Result<String, String> {
         Err("Not implemented yet".to_string())
+    }
+}
+
+impl Default for PacketProt {
+    fn default() -> PacketProt {
+        PacketProt {
+            command: '0',
+            param1: None,
+            param2: None,
+            param3: None,
+        }
     }
 }

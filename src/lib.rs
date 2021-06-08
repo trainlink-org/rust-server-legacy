@@ -1,8 +1,12 @@
+mod websocket_server;
+
 mod config;
-mod parser;
-mod update_state;
+pub mod parser;
+pub mod update_state;
 mod packet_gen;
-mod serial;
+pub mod serial;
+
+pub use crate::websocket_server::*;
 
 pub use crate::config::*;
 pub use crate::parser::*;
@@ -59,9 +63,19 @@ pub enum Direction {
     Estop,
 }
 
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub enum TrackPower {
     Powered,
     Off,
+}
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum FnState {
+    On,
+    Off,
+    Toggle,
 }
 
 
