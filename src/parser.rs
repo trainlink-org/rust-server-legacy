@@ -43,8 +43,7 @@ pub struct FnMsg {
     pub state: FnState,
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct PowerMsg {
     pub state: TrackPower,
 }

@@ -14,10 +14,10 @@ pub use crate::update_state::*;
 pub use crate::packet_gen::*;
 pub use crate::serial::*;
 
-
+#[derive(Debug, PartialEq)]
 pub struct Cab {
     id: u32,
-    speed: u32,
+    speed: u8,
     pub direction: Direction,
     // pub functions: Functions,
     pub functions: [bool; 28],
@@ -40,7 +40,7 @@ impl Cab {
     }
 
     /// Sets the speed of the cab
-    pub fn set_speed(&mut self, new_speed: u32) -> Result<(), String>{
+    pub fn set_speed(&mut self, new_speed: u8) -> Result<(), String>{
         if new_speed <= 126{
             self.speed = new_speed;
             return Ok(());
@@ -49,8 +49,23 @@ impl Cab {
     }
 
     /// Gets the speed of the cab
-    pub fn get_speed(&self) -> u32 {
+    pub fn get_speed(&self) -> u8 {
         self.speed
+    }
+
+    pub fn set_function(&mut self, fn_num: usize, state: bool) -> Result<(), String> {
+        if fn_num <= 28 {
+            self.functions[fn_num] = state;
+            return Ok(());
+        }
+        Err("Index out of range".to_string())
+    }
+
+    pub fn get_function(&self, fn_num: usize) -> Result<bool, String> {
+        if fn_num <= 28 {
+            return Ok(self.functions[fn_num]);
+        }
+        Err("Index out of range".to_string())
     }
 }
 
