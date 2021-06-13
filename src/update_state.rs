@@ -4,7 +4,7 @@ use crate::packet_gen::*;
 use crate::{Cab, Direction, FnState, TrackPower};
 use std::sync::{Arc, Mutex};
 
-pub fn speed(msg: SpeedMsg, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_mutex: Arc<Mutex<Vec<Cab>>>) -> PacketProt {
+pub fn speed(msg: SpeedMsg, update_packet: &mut String, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_mutex: Arc<Mutex<Vec<Cab>>>) -> PacketProt {
     let mut cabs = cabs_mutex.lock().unwrap();
     let known_cabs = known_cabs.lock().unwrap();
 
@@ -30,7 +30,11 @@ pub fn speed(msg: SpeedMsg, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_m
     };
 
     cab.direction = msg.direction;
-    println!("Cabs: {:?}", cabs);
+    // println!("Cabs: {:?}", cabs);
+
+    let mut update_packet_temp = format!(r#""type": "state", "updateType": "cab", "cab": "{}", "speed": "{}", "direction": {}, "functions": {:?} "#, id, speed, direction, cab.functions);
+    update_packet_temp = format!("{{{}}}", update_packet_temp);
+    *update_packet = update_packet_temp;
 
     PacketProt::new("t 1".to_string(), 
                     Some(id as i32), 
@@ -39,7 +43,7 @@ pub fn speed(msg: SpeedMsg, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_m
                     .unwrap()
 }
 
-pub fn function(msg: FnMsg, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_mutex: Arc<Mutex<Vec<Cab>>>) -> PacketProt {
+pub fn function(msg: FnMsg, update_packet: &mut String, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_mutex: Arc<Mutex<Vec<Cab>>>) -> PacketProt {
     let mut cabs = cabs_mutex.lock().unwrap();
     let known_cabs = known_cabs.lock().unwrap();
 
@@ -71,7 +75,7 @@ pub fn function(msg: FnMsg, known_cabs: Arc<Mutex<HashMap<String, u32>>>, cabs_m
 
 }
 
-pub fn power(msg: PowerMsg, track_power: Arc<Mutex<TrackPower>>) -> PacketProt {
+pub fn power(msg: PowerMsg, update_packet: &mut String, track_power: Arc<Mutex<TrackPower>>) -> PacketProt {
     let mut track_power = track_power.lock().unwrap();
 
     let state = match msg.state {
