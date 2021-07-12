@@ -332,7 +332,7 @@ async fn main() -> Result<(), IoError> {
     let mut port = serial::open("/dev/ttyACM0").unwrap();
     let mut port = Arc::new(Mutex::new(port));
 
-    let addr = env::args().nth(1).unwrap_or_else(|| "127.0.0.1:6789".to_string());
+    let addr = env::args().nth(1).unwrap_or_else(|| "0.0.0.0:6789".to_string());
 
     let state = PeerMap::new(Mutex::new(HashMap::new()));
 
