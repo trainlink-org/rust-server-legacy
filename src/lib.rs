@@ -1,12 +1,9 @@
-mod websocket_server;
-
 mod config;
 pub mod parser;
 pub mod update_state;
 mod packet_gen;
 pub mod serial_utils;
 
-pub use crate::websocket_server::*;
 
 pub use crate::config::*;
 pub use crate::parser::*;

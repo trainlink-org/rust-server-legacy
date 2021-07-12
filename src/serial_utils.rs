@@ -11,7 +11,13 @@ pub fn send_packet(packet: PacketProt, tx: mpsc::Sender<String>) -> Result<(), S
     Ok(())
 }
 
-pub fn write_packet<T: SerialPort>(packet: String, port: &mut T) -> Result<(), String> {
+/*pub fn write_packet<T: SerialPort>(packet: String, port: &mut T) -> Result<(), String> {
+    port.write(&packet.into_bytes()[..]).unwrap();
+    Ok(())
+}*/
+// pub fn write_packet<T: SerialPort>(packet: PacketProt, mut port: T) -> Result<(), String> {
+pub fn write_packet<T: SerialPort>(packet: PacketProt, mut port: std::sync::MutexGuard<T>) -> Result<(), String> {
+    let packet = packet.generate().unwrap();
     port.write(&packet.into_bytes()[..]).unwrap();
     Ok(())
 }

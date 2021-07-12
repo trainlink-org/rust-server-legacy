@@ -69,7 +69,17 @@ pub fn function(msg: FnMsg, update_packet: &mut String, known_cabs: Arc<Mutex<Ha
 
     cab.set_function(index.into(), state != 0 ).unwrap();
 
-    println!("Cabs: {:?}", cabs);
+    let direction = match cab.direction {
+        Direction::Forward => 1,
+        Direction::Reverse => 0,
+        Direction::Stopped => 0,
+        Direction::Estop => 0
+    };
+
+    // println!("Cabs: {:?}", cabs);
+    let mut update_packet_temp = format!(r#""type": "state", "updateType": "cab", "cab": "{}", "speed": "{}", "direction": {:?}, "functions": {:?} "#, id, cab.speed, direction, cab.functions);
+    update_packet_temp = format!("{{{}}}", update_packet_temp);
+    *update_packet = update_packet_temp;
 
     PacketProt::new("T".to_string(), Some(id as i32), Some(msg.func_num as i32), Some(state)).unwrap()
 
@@ -86,6 +96,10 @@ pub fn power(msg: PowerMsg, update_packet: &mut String, track_power: Arc<Mutex<T
     *track_power = msg.state;
 
     println!("{:?}", track_power);
+
+    let mut update_packet_temp = format!(r#""type": "state", "updateType": "power", "state": {:?} "#, state);
+    update_packet_temp = format!("{{{}}}", update_packet_temp);
+    *update_packet = update_packet_temp;
 
     PacketProt::new(format!("{}", state), None, None, None ).unwrap()
 }
