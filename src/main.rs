@@ -20,42 +20,52 @@ type PeerMap = Arc<Mutex<HashMap<SocketAddr, Tx>>>;
 #[tokio::main]
 async fn main() -> Result<(), IoError> {
     
+    // Used to store the cabs that are defined in the config file
     let mut known_cabs: HashMap<String, u32> = HashMap::new();
+
+    // Hardcoding - remove and replace with config loading!
     known_cabs.insert(String::from("Train1"), 1);
     known_cabs.insert(String::from("Train2"), 2);
+    // ----------------------------------------------------
 
+    // Stores the state of the track and all cabs
     let track_power = TrackPower::Off;
     let mut cabs: Vec<Cab> = vec!();
 
+    // Creates a cab for each known cab
     for cab in known_cabs.iter() {
         cabs.push(Cab::new(*cab.1));
     } 
-    println!("{:?}", cabs);
+    // println!("{:?}", cabs);
 
-    let mut cabs_threads = Arc::new(Mutex::new(cabs));
+    // Creates the mutexes that allow the threads to access central values
     let known_cabs_threads = Arc::new(Mutex::new(known_cabs));
     let mut track_power_threads = Arc::new(Mutex::new(track_power));
+    let mut cabs_threads = Arc::new(Mutex::new(cabs));
 
+    // Opens the serial port and creates a mutex for it
     let port = serial::open("/dev/ttyACM0").unwrap();
     let mut port = Arc::new(Mutex::new(port));
 
+    // Sets the servers IP address and port
     let addr = env::args().nth(1).unwrap_or_else(|| "0.0.0.0:6789".to_string());
 
     let state = PeerMap::new(Mutex::new(HashMap::new()));
 
-    // Create the event loop and TCP listener we'll accept connections on.
+    // Create the event loop and TCP listener to accept connections on
     let try_socket = TcpListener::bind(&addr).await;
     let listener = try_socket.expect("Failed to bind");
     println!("Listening on: {}", addr);
 
-    // Let's spawn the handling of each connection in a separate task.
+    // Spawn the handling of each connection in a separate task
     while let Ok((stream, addr)) = listener.accept().await {
-        //let tx_serial = mpsc::Sender::clone(&tx_serial);
+        // Create a separate copy of the mutex handler for each task
         let cabs_threads = Arc::clone(&mut cabs_threads);
         let known_cabs_threads = Arc::clone(&known_cabs_threads);
         let track_power_threads = Arc::clone(&mut track_power_threads);
         let port = Arc::clone(&mut port);
-        tokio::spawn(handle_connection(state.clone(), stream, addr, port, /*tx_serial,*/ cabs_threads, known_cabs_threads, track_power_threads));
+        // Create the task
+        tokio::spawn(handle_connection(state.clone(), stream, addr, port, cabs_threads, known_cabs_threads, track_power_threads));
     }
 
     Ok(())
