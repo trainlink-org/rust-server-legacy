@@ -425,9 +425,9 @@ checksum = "b16bd47d9e329435e309c58469fe0791c2d0d1ba96ec0954152a5ae2b04387dc"
 
 [[package]]
 name = "mini-redis"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a1780f32b80b7b7f31f2cb3cb7c2a3c31a1bbc030b285c5f50667a92f7a3378"
+checksum = "528890a6b63c88c9bda173867128abe62c0f5050dd959f067aeea09e90439f33"
 dependencies = [
  "async-stream",
  "atoi",
