@@ -84,7 +84,8 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
     let (tx, rx) = unbounded();
     
     // These are hardcoded values, need to be changed to send the actual current value
-    &tx.unbounded_send(Message::Text(r#"{"type": "config", "cabs": {"Train1": "1", "Train2", "2"}, "debug": "True"}"#.to_string())).unwrap();
+    // &tx.unbounded_send(Message::Text("{\"type\": \"config\", \"cabs\": {\"Train1\": \"1\", \"Train2\": \"2\"}, \"debug\": \"True\"}".to_string())).unwrap();
+    &tx.unbounded_send(Message::Text(r#"{"type": "config", "cabs": {"Train1": "1", "Train2": "2"}, "debug": "True"}"#.to_string())).unwrap();
     &tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "1", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
     &tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "2", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
     // -------------------------------------------------------------------------------
@@ -99,7 +100,7 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
 
     // Run closure for each incoming message
     let broadcast_incoming = incoming.try_for_each(|msg| {
-        println!("Received a message from {}: {}", addr, msg.to_text().unwrap());
+        // println!("Received a message from {}: {}", addr, msg.to_text().unwrap());
         
         // Clone a copy of the mutex handlers
         let cabs_threads = Arc::clone(&mut cabs_threads);
@@ -112,11 +113,16 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
         // Convert the message to a string
         let msg_str = msg.to_text().unwrap().to_string();
         // Parse packet to a PacketProt
-        let packet_prot: Option<PacketProt> = match parser::parse(msg_str).unwrap() {
-            Parsed::Speed(packet) => Some(update_state::speed(packet, &mut update_packet, known_cabs_threads, cabs_threads)),
-            Parsed::Function(packet) => Some(update_state::function(packet, &mut update_packet, known_cabs_threads, cabs_threads)),
-            Parsed::Power(packet) => Some(update_state::power(packet, &mut update_packet, track_power_threads)),
-        };
+        let parsed = parser::parse(msg_str);
+        let packet_prot: Option<PacketProt> = match parsed {
+            Ok(Parsed::Speed(packet)) => Some(update_state::speed(packet, &mut update_packet, known_cabs_threads, cabs_threads)),
+            Ok(Parsed::Function(packet)) => Some(update_state::function(packet, &mut update_packet, known_cabs_threads, cabs_threads)),
+            Ok(Parsed::Power(packet)) => Some(update_state::power(packet, &mut update_packet, track_power_threads)),
+            Err(error) => {
+                println!("{}", error);
+                return future::ok(());
+            },
+        }; 
 //        serial_utils::send_packet(packet_prot.unwrap(), tx_serial).unwrap();
 
         // Obtain serial port lock
@@ -132,11 +138,13 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
 
         // Broadcast the message to everyone except ourselves.
         let update_msg = Message::Text(update_packet);
+        // let update_msg = Message::Text("".to_string());
         let broadcast_recipients = peers.iter().filter(|(peer_addr, _)| peer_addr != &&addr).map(|(_, ws_sink)| ws_sink);
 
         for recp in broadcast_recipients {
+            // recp.unbounded_send(update_msg.clone()).unwrap(); 
             if let Err(error) = recp.unbounded_send(update_msg.clone()) {
-                println!("{}", error);
+                println!("Broadcast: {}", error);
                 return future::ok(());
             }
         }
