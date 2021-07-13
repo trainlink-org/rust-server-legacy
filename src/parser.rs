@@ -8,7 +8,7 @@ pub fn parse(input: String) -> Result<Parsed, Box<dyn Error>> {
 
     v = serde_json::from_str(&input[..])?;
     
-    println!("{}", &v["class"].to_string()[..]);
+    // println!("{}", &v["class"].to_string()[..]);
     let result = match &v["class"].to_string()[..] {
         r#""cabControl""# => parse_speed(v), 
         r#""cabFunction""# => parse_function(v),
@@ -82,7 +82,7 @@ fn parse_speed(msg: Value) -> Result<Parsed, String> {
     } else {
         return Err("Invalid packet".to_string());
     }
-    println!("{:?}", return_msg);
+    // println!("{:?}", return_msg);
     Ok(Parsed::Speed(return_msg))
 }
 

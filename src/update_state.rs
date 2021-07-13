@@ -30,7 +30,6 @@ pub fn speed(msg: SpeedMsg, update_packet: &mut String, known_cabs: Arc<Mutex<Ha
     };
 
     cab.direction = msg.direction;
-    // println!("Cabs: {:?}", cabs);
 
     let mut update_packet_temp = format!(r#""type": "state", "updateType": "cab", "cab": "{}", "speed": "{}", "direction": {}, "functions": {:?} "#, id, speed, direction, cab.functions);
     update_packet_temp = format!("{{{}}}", update_packet_temp);

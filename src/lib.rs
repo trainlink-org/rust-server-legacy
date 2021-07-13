@@ -21,7 +21,7 @@ pub struct Cab {
     speed: u8,
     pub direction: Direction,
     // pub functions: Functions,
-    pub functions: [bool; 28],
+    functions: [bool; 28],
 }
 
 impl Cab {
