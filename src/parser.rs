@@ -13,10 +13,11 @@ pub fn parse(input: String) -> Result<Parsed, Box<dyn Error>> {
         r#""cabControl""# => parse_speed(v), 
         r#""cabFunction""# => parse_function(v),
         r#""power""# => parse_power(v),
-        _ => Err("Error".to_string()) 
+        _ => Err("Error".to_string())?,
     };
+    let result = result?;
     
-    Ok(result.unwrap())
+    Ok(result)
 }
 
 #[derive(Debug)]
@@ -48,7 +49,7 @@ pub struct PowerMsg {
     pub state: TrackPower,
 }
 
-fn parse_speed(msg: Value) -> Result<Parsed, String> {
+fn parse_speed(msg: Value) -> Result<Parsed, Box<dyn Error>>{
     let return_msg: SpeedMsg;
     let address = msg["cabAddress"].to_string();
     let len = address.len();
@@ -61,7 +62,7 @@ fn parse_speed(msg: Value) -> Result<Parsed, String> {
         };
         let speed = msg["cabSpeed"].to_string();
         let len = speed.len();
-        let speed: u8 = speed[1..len-1].parse().unwrap();
+        let speed: u8 = speed[1..len-1].parse()?;
         return_msg = SpeedMsg{
             address,
             speed,
@@ -80,17 +81,17 @@ fn parse_speed(msg: Value) -> Result<Parsed, String> {
             direction: Direction::Estop,
         }
     } else {
-        return Err("Invalid packet".to_string());
+        return Err("Invalid packet")?;
     }
     // println!("{:?}", return_msg);
     Ok(Parsed::Speed(return_msg))
 }
 
-fn parse_function(msg: Value) -> Result<Parsed, String> {
+fn parse_function(msg: Value) -> Result<Parsed, Box<dyn Error>> {
     let address = msg["cab"].to_string();
     let len = address.len();
     let address = address[1..len-1].to_string();
-    let state = match msg["state"].to_string().parse().unwrap() {
+    let state = match msg["state"].to_string().parse()? {
         1 => FnState::On,
         0 => FnState::Off,
         -1 => FnState::Toggle,
@@ -98,15 +99,15 @@ fn parse_function(msg: Value) -> Result<Parsed, String> {
     };
     let return_msg = FnMsg{
         address,
-        func_num: msg["func"].to_string().parse().unwrap(),
+        func_num: msg["func"].to_string().parse()?,
         state,
     };
     println!("{:?}", return_msg);
     Ok(Parsed::Function(return_msg))
 }
 
-fn parse_power(msg: Value) -> Result<Parsed, String> {
-    let state: u8 = msg["state"].to_string().parse().unwrap();
+fn parse_power(msg: Value) -> Result<Parsed, Box<dyn Error>> {
+    let state: u8 = msg["state"].to_string().parse()?;
     let state = match state {
         1 => TrackPower::Powered,
         0 => TrackPower::Off,
