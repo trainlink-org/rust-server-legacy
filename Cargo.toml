@@ -11,7 +11,7 @@ tokio = { version = "1.10.0", features = ["full"] }
 mini-redis = "0.4"
 # tokio = "1.6.1"
 tokio-tungstenite = "0.15.0"
-tungstenite = "0.14.0"
+tungstenite = "0.15.0"
 log = "0.4"
 env_logger = "*"
 futures-util = { version = "0.3", default-features = false, features = ["async-await", "sink", "std"] }
