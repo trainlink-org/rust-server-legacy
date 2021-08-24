@@ -1,5 +1,5 @@
 # TrainLink API
-
+[![Build Rust](https://github.com/trainlink-org/rust-server/actions/workflows/build-rust.yml/badge.svg)](https://github.com/trainlink-org/rust-server/actions/workflows/build-rust.yml)
 This is an API to intergrate with a DCC++ (or DCC++ EX) BaseStation. It provides a simple way to control it over your local network, with multiple instances supported. This means if you open a website using TrainLink on two devices connected to the same server, they will be kept in sync! If you don't know anything about TrainLink, I suggest you check out [the main repo](https://github.com/trainlink-org/trainlink-api), this gives a better overview of the TrainLink system.
 
 **Note:** Before version 0.2.0, the whole codebase was kept in one repository. It has now been split into separate repositories to help with maintainance, but the old releases are kept in the [main repository](https://github.com/trainlink-org/trainlink-api) for now, just for completeness.
