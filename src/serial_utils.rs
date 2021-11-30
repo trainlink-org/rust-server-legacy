@@ -17,8 +17,14 @@ pub fn send_packet(packet: PacketProt, tx: mpsc::Sender<String>) -> Result<(), S
     Ok(())
 }*/
 // pub fn write_packet<T: SerialPort>(packet: PacketProt, mut port: T) -> Result<(), String> {
-pub fn write_packet<T: SerialPort>(packet: PacketProt, mut port: std::sync::MutexGuard<T>) -> Result<(), Box<dyn Error>> {
+pub fn write_packet<T: SerialPort>(packet: PacketProt, mut port: std::sync::MutexGuard<Option<T>>) -> Result<(), Box<dyn Error>> {
     let packet = packet.generate()?;
-    port.write(&packet.into_bytes()[..])?;
-    Ok(())
+    match *port {
+        Some(ref mut port) => {
+            port.write(&packet.into_bytes()[..])?;
+            return Ok(());
+        }
+        None => return Ok(()),
+    }
+    // port.write(&packet.into_bytes()[..])?;
 }
