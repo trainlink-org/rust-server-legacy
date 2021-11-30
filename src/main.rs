@@ -46,7 +46,7 @@ async fn main() -> Result<(), IoError> {
     // Opens the serial port and creates a mutex for it
     let port = match serial::open("/dev/ttyACM0") {
         Ok(port) => Some(port),
-        Err(e) => {println!("Failed to connect to serial port, using emulator"); 
+        Err(_) => {println!("Failed to connect to serial port, using emulator"); 
                 None},
     };
     let mut port = Arc::new(Mutex::new(port));
@@ -89,9 +89,9 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
     
     // These are hardcoded values, need to be changed to send the actual current value
     // &tx.unbounded_send(Message::Text("{\"type\": \"config\", \"cabs\": {\"Train1\": \"1\", \"Train2\": \"2\"}, \"debug\": \"True\"}".to_string())).unwrap();
-    &tx.unbounded_send(Message::Text(r#"{"type": "config", "cabs": {"Train1": "1", "Train2": "2"}, "debug": "True"}"#.to_string())).unwrap();
-    &tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "1", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
-    &tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "2", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
+    tx.unbounded_send(Message::Text(r#"{"type": "config", "cabs": {"Train1": "1", "Train2": "2"}, "debug": "True"}"#.to_string())).unwrap();
+    tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "1", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
+    tx.unbounded_send(Message::Text(r#"{"type": "state", "updateType": "cab", "cab": "2", "speed": 0, "direction": 1, "functions": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"#.to_string())).unwrap();
     // -------------------------------------------------------------------------------
     
     // Insert the write part of this peer to the peer map.
@@ -159,7 +159,8 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
     // Handle update packets
     let receive_from_others = rx.map(Ok).forward(outgoing);
 
-    pin_mut!(broadcast_incoming, receive_from_others);
+    pin_mut!(broadcast_incoming);
+    pin_mut!(receive_from_others);
     future::select(broadcast_incoming, receive_from_others).await;
 
     // Handle device disconnecting
