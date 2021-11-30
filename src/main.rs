@@ -44,7 +44,11 @@ async fn main() -> Result<(), IoError> {
     let mut cabs_threads = Arc::new(Mutex::new(cabs));
 
     // Opens the serial port and creates a mutex for it
-    let port = serial::open("/dev/ttyACM0").unwrap();
+    let port = match serial::open("/dev/ttyACM0") {
+        Ok(port) => Some(port),
+        Err(e) => {println!("Failed to connect to serial port, using emulator"); 
+                None},
+    };
     let mut port = Arc::new(Mutex::new(port));
 
     // Sets the servers IP address and port
@@ -71,7 +75,7 @@ async fn main() -> Result<(), IoError> {
     Ok(())
 }
 
-async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr,mut port: Arc<Mutex<serial::SystemPort>>, /*tx_serial: mpsc::Sender<String>,*/ mut cabs_threads: Arc<Mutex<Vec<Cab>>>, known_cabs_threads: Arc<Mutex<HashMap<String, u32>>>, mut track_power_threads: Arc<Mutex<TrackPower>> ) {
+async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: SocketAddr,mut port: Arc<Mutex<Option<serial::SystemPort>>>, /*tx_serial: mpsc::Sender<String>,*/ mut cabs_threads: Arc<Mutex<Vec<Cab>>>, known_cabs_threads: Arc<Mutex<HashMap<String, u32>>>, mut track_power_threads: Arc<Mutex<TrackPower>> ) {
     println!("Incoming TCP connection from: {}", addr);
 
     // Accept connection and report to console()
