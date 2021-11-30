@@ -46,7 +46,8 @@ async fn main() -> Result<(), IoError> {
     // Opens the serial port and creates a mutex for it
     let port = match serial::open("/dev/ttyACM0") {
         Ok(port) => Some(port),
-        Err(e) => None,
+        Err(e) => {println!("Failed to connect to serial port, using emulator"); 
+                None},
     };
     let mut port = Arc::new(Mutex::new(port));
 
