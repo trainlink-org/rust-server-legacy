@@ -22,6 +22,9 @@ async fn main() -> Result<(), IoError> {
     
     // Used to store the cabs that are defined in the config file
     let mut known_cabs: HashMap<String, u32> = HashMap::new();
+    
+    // Load the config file
+    let config_file = config::Config::load("config/config.xml".to_string());
 
     // Hardcoding - remove and replace with config loading!
     known_cabs.insert(String::from("Train1"), 1);
@@ -104,7 +107,7 @@ async fn handle_connection(peer_map: PeerMap, raw_stream: TcpStream, addr: Socke
 
     // Run closure for each incoming message
     let broadcast_incoming = incoming.try_for_each(|msg| {
-        // println!("Received a message from {}: {}", addr, msg.to_text().unwrap());
+        println!("Received a message from {}: {}", addr, msg.to_text().unwrap());
         
         // Clone a copy of the mutex handlers
         let cabs_threads = Arc::clone(&mut cabs_threads);

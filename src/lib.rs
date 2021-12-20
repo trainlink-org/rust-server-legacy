@@ -1,8 +1,9 @@
-mod config;
+pub mod config;
 pub mod parser;
 pub mod update_state;
 mod packet_gen;
 pub mod serial_utils;
+pub mod xml_parser;
 
 
 pub use crate::config::*;
@@ -10,6 +11,7 @@ pub use crate::parser::*;
 pub use crate::update_state::*;
 pub use crate::packet_gen::*;
 pub use crate::serial_utils::*;
+pub use crate::xml_parser::*;
 
 extern crate serial;
 pub use serial::prelude::*;
