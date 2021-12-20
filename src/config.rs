@@ -80,8 +80,8 @@ impl Config {
         println!("{}", contents);
         let xml_nodes = XMLParser::parse(contents);
         println!("{:?}", xml_nodes);
-        println!("{:?}", xml_nodes.get_value(vec!("config".to_string(), "server".to_string(), "ip".to_string())));
-        println!("{:?}", xml_nodes.get_value(vec!("config".to_string(), "cabs".to_string(), "cab".to_string(), "name".to_string())));
+        println!("{:?}", xml_nodes.get_value(vec!("config", "server", "ip")));
+        println!("{:?}", xml_nodes.get_value(vec!("config", "cabs", "cab", "name")));
         // let root: minidom::Element = contents.parse().unwrap();
         // println!("{:#?}", root);
 

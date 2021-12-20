@@ -158,7 +158,7 @@ impl XMLParser {
 		}
 	} */
 
-	pub fn get_value(&self, mut path: Vec<String>) -> Vec<Option<String>> {
+	pub fn get_value(&self, mut path: Vec<&str>) -> Vec<Option<String>> {
 		if path[0] != self.root.name {
 			return vec!(None);
 		}
@@ -166,7 +166,7 @@ impl XMLParser {
 		self.get_value_recursive(&self.root.child, path)
 	}
 
-	fn get_value_recursive(&self, nodes: &Vec<Node>,mut path: Vec<String>) ->  Vec<Option<String>> {
+	fn get_value_recursive(&self, nodes: &Vec<Node>,path: Vec<&str>) ->  Vec<Option<String>> {
 		let mut result: Vec<Option<String>> = Vec::new();
 		let mut n = 0;
 		// let nodes = nodes.clone();
@@ -179,8 +179,11 @@ impl XMLParser {
 						return vec!(None);
 					}*/
 				} else {
-					path.remove(0);
-					return self.get_value_recursive(&node.child, path);
+					let mut new_path = path.clone();
+					new_path.remove(0);
+					for i in self.get_value_recursive(&node.child, new_path) {
+						result.push(i);
+					}
 				}
 			}
 			n += 1;
